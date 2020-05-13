@@ -3,8 +3,6 @@ English | [简体中文](./README.zh-CN.md)
 # dream-redux
 A fast-zero-build redux framework for react apps.
 
-*Notice: English document is undone yet, and more details are coming soon.*
-
 ## Introduction
 **dream-redux** is an integration framework for developers to use redux fast and easily.
  It provides the conveniences to set up redux series and many APIs for coding efficiently.
@@ -66,13 +64,13 @@ The regular redux coding is complex and confused to the beginners so it keep the
 ## API Basic Usage
 
 #### `StoreCreator(config)`
-- a class to create *store* and a series of APIs
-- parameter **`config`** *object*
-  - **reducerConfig** *object* | *array* : reducers config, with *single-reducer* mode and *multi-reducers* mode
-    - **name** *string*
-    - **initialState** *object*
-    - **persist** *object*
-  - **returnPromise** *boolean*
+A class to create *store* and a series of APIs
+- parameter **`config`** *object* 
+  - **reducerConfig** *object* | *array* : reducers config, divided into *single-reducer* mode and *multi-reducers* mode
+    - **name** *string* : *required*, reducer name, used as *store_state* field and *mutation* target
+    - **initialState** *object* : *required*, *reducer_state* structure and initialValue
+    - **persist** *object* : *optional*, is the same as *persistConfig* in *redux-persist*
+  - **returnPromise** *boolean* : *optional*, `false` by default, set `true` to return Promise when dispatching
 - returns: `{ store, useSelector, setReducer, commitMutation, persistor }`
 
 **Example**
@@ -92,6 +90,7 @@ const config = {
 
 // Or:
 // multi-reducers mode
+// Notice: Even there is only one reducer in reducerConfig is regarded as multi-reducers if config's type is array
 const config = {
   reducerConfig: [
     {
@@ -114,7 +113,7 @@ export const { store, persistor, useSelector, setReducer, commitMutation } = new
 ```
 
 #### `useSelector(callback)`
-- get target state in *store_state*, is the same as *useSelector* in react-redux repo
+A hook to get target state in hook components, is the same as *useSelector* in react-redux
 
 **Example**
 ```js
@@ -131,11 +130,41 @@ export default Example() {
 }
 ```
 
+#### `connect(mapStateToProps)`
+A HOC to get target state in class components, is the same as *connect* with param *mapStateToProps* in react-redux, and param *mapDispatchToProps* is unnecessary, use *commitMutation* instead.
+
+**Example**
+```js
+import React from 'react'
+import { connect } from 'dream-redux'
+
+const connectWrapper = connect(state => state)
+
+class Example extends React.Component {
+  constructor(props) {
+    super(props)
+    this.exampleMethod = this.exampleMethod.bind(this)
+  }
+
+  exampleMethod() {
+    const { count, list } = this.props
+    console.log('count', count)  // 'count', 0
+    console.log('list', list)    // 'list', []
+  }
+
+  render() {
+    return <div></div>
+  }
+}
+
+export default connect(Example)
+```
+
 #### `setReducer(target, operation, [returnPromise])`
-- basic *dispatch* API to mutate *reducer_state* directly 
-- parameter **`target`** *string*
-- parameter **`operation`** *function*
-- parameter **`returnPromise`** *boolean*
+Basic *dispatch* API to mutate *reducer_state* directly
+- parameter **`target`** *string* : *required*, specify reducer's *name* field
+- parameter **`operation`** *function* : *required*, privide target *reducer_state* to mutate directly in function body
+- parameter **`returnPromise`** *boolean* : *optional*, `false` by default, set `true` to return Promise when dispatching
 
 **Example**
 ```js
@@ -153,12 +182,12 @@ export default Example() {
 ```
 
 #### `commitMutation(mutation, [returnPromise])`
-- core *dispatch* API，the advanced version of *setReducer*
-- parameter **`mutation`** *object*
-  - **type** *string*
-  - **target** *string* | *array*
-  - **operation** *function* | *array* 
-- parameter **`returnPromise`** *boolean* 
+Core *dispatch* API, the advanced version of *setReducer*
+- parameter **`mutation`** *object* | *function* : *required*, usually written as a creator function that returns an *mutation object* obtains all update infomation, and run with necessary params in *commitMutation*; it also can be presented as a function returns *Promise* when handling async code
+  - **type** *string* : *optional*, a flag used for process tracing
+  - **target** *string* | *array* : *required*, specify reducer(s)'s *name* field
+  - **operation** *function* | *array* : *required*, privide target *reducer_state* to mutate directly in function body
+- parameter **`returnPromise`** *boolean* : *optional*, `false` by default, set `true` to return Promise when dispatching
 
 **Example**
 ```js
@@ -172,6 +201,7 @@ export default Example() {
       type: 'EXAMPLE_A',
       target: 'app',
       operation: state => {
+        // state here is store_state in single-reducer mode and reducer_state in multi-reducer mode
         state.list.push(listItem)
       }
     }
@@ -187,6 +217,8 @@ export default Example() {
 ## API Advanced Usage
 
 ### Mutating multiple reducers at the same time
+When *store_state* is divided into several *reducer_state* and a mutation wants to update some of them at the same time, we provide a format to fit it. This can only be used in *commitMutation's* mutationCreator.
+
 ```js
 // mutations.js
 
@@ -206,15 +238,16 @@ export const mutationCreator = listItem => ({
 })
 ```
 
-### Async mutation
+### Asynchronous mutation
+If you want to wait for a http request and update the resonse to state, or using timer function like *setTimeout* to dispatch asynchronously, you can try the following mutationCreator format. It works as what *redux-thunk* does.
 
-- HTTP request
+- deal with **HTTP request**
 ```js
 // mutations.js
 
 export const mutationCreator = () => {
   return (dispatch, getState) => {
-    SomeHttpRequest().then(res => {
+    return SomeHttpRequest().then(res => {
       console.log(res)  // { data: 'This is data from a http request' }
       console.log(getState())  // store_state
 
@@ -230,12 +263,13 @@ export const mutationCreator = () => {
 }
 ```
 
-- setTimeout
+- deal with **setTimeout**
 ```js
 // mutations.js
 
 export const mutationCreator = () => {
   return dispatch => {
+    // wrap setTimeout with a Promise and resolve in it
     return new Promise(resolve => {
       setTimeout(() => {
         dispatch({
@@ -252,7 +286,10 @@ export const mutationCreator = () => {
 }
 ```
 
-### Returns Promise and get the latest state
+### Return Promise and get the latest state
+In regular redux, you cannot get latest *store_state* immediately after *dispatch*, but now it come true if you set the last parameter to `true` in *setReducer* and *commitMutation* and it will return a Promise with latest *store_state*.
+
+*Notice: This is not a stable function yet, please feedback via Issue if it doesn't work.*
 
 ```js
 import React from 'react'
@@ -262,7 +299,7 @@ export default Example() {
   setReducer('app', state => {
     state.count++
   }, true).then(state => {
-    // state is the latest
+    // state is the latest store_state
     console.log(state.count)  // 1
   })
 
@@ -275,7 +312,7 @@ export default Example() {
   })
 
   commitMutation(mutationCreator('This is an example text'), true).then(state => {
-    // state is the latest
+    // state is the latest store_state
     console.log(state.list)  // ['This is an example text']
   })
 
@@ -284,6 +321,7 @@ export default Example() {
 ```
 
 ### Persistence storage
+Since the page refresh or reload, *store* will be recreate and the previous *store_state* will be reset. If you would like to storage some or all of them, you may configurate the *persist* field in the config of *StoreCreator* in initialization. It works as `persistConfig` in *redux-persist*.
 
 ```js
 // src/store/index.js
@@ -297,8 +335,8 @@ const config = {
         list: []
       },
       persist: {
-        whitelist: ['list']
-        // blacklist: ['list']
+        whitelist: ['list']  // fields in whitelist will be cached
+        // blacklist: ['list']  // and fields in whitelist will not be cached
       }
     },
     {
@@ -306,7 +344,7 @@ const config = {
       initialState: {
         count: 0
       },
-      persist: {}  // all the fields of this reducer_state would be persisted
+      persist: {}  // all the fields of this reducer_state will be cached
     },
   ]
 }
@@ -314,6 +352,7 @@ const config = {
 export const { store, persistor, useSelector, setReducer, commitMutation } = new StoreCreator(config)
 ```
 
+And then import *persistor* with *PersistGate* in the root file:
 ```js
 // src/index.jsx
 
