@@ -4,7 +4,7 @@
 一个无需复杂搭建，开箱即用的 redux 开发框架。
 
 ## 简介
-**dream-redux** 是一个专门为想快速使用 redux 的开发者打造的框架，只需要写两处代码便可在 react 项目上完成 redux 和相关的多个库的搭建，并且提供了多种简化功能，使项目代码更加高效简洁。你只需要有 react 的基础知识，便能借助 dream-redux 轻松开发具备状态管理功能的项目了。
+**dream-redux** 是一个专门为想快速使用 redux 的开发者打造的框架，只需要写两处代码便可在 react 项目上完成 redux 和相关的多个库的搭建，并且提供了多种简化功能，使项目代码更加高效简洁。你只需要有 react 的基础知识，便能借助 **dream-redux** 轻松开发具备状态管理功能的项目了。
 
 ## 安装
 ```ssh
@@ -55,9 +55,9 @@ ReactDOM.render(
 
 负责更新 state 的模块称为 reducer，store_state 可以只由一个 reducer 负责，称为*单 reducer 模式*。store_state 也可以分割成多个 partial state，分别交给多个 reducers 管理，称为*多 reducers 模式*。每个 reducer 管理的 partial state 在后文用 **reducer_state** 代称。
 
-在 redux 的设计理念中，state 是不能被直接修改的，只能使用 store.dispatch 向 reducer 派发带有修改信息的 action，reducer 中根据 action 中的 type 匹配到指定的修改逻辑，修改后把更新了的 reducer_state 交给 store 做后续的一系列更新视图的操作。
+在 redux 的设计理念中，state 是不能被直接修改的，只能使用 store.dispatch 向 reducer 派发带有修改信息的 action，reducer 中根据 action 中的 type 匹配到指定的修改逻辑，修改后把更新了的 reducer_state 返回给 store 做后续的一系列更新视图的操作。
 
-而且，在 reducer 接收到 action 后，逻辑代码不能直接对现在的 reducer_state 进行修改，而是需要构造一个全新的 reducer_state，在新 reducer_state 上做修改后返回给 store。这使得处理稍复杂的 reducer_state 时会非常麻烦，也容易出现错误。
+这个过程中，当 reducer 接收到 action 后，逻辑代码不能直接对现在的 reducer_state 进行修改，而是需要构造一个全新的 reducer_state，在新 reducer_state 上做修改后返回给 store。这使得处理稍复杂的 reducer_state 时会非常麻烦，也容易出现错误。
 
 看到这里，刚接触 redux 的朋友是不是被这个更新流程给绕晕了，再加上繁琐的初始搭建过程，使其对新手特别不友好，这也是 redux 受人诟病的缺点之一。而这也就是 dream-redux 想要解决的问题。
 
@@ -73,12 +73,12 @@ ReactDOM.render(
 ## API 基本用法
 
 #### `StoreCreator(config)`
-- 创建核心对象 store 和一系列 api 的类对象
+创建核心对象 store 和一系列 api 的类对象
 - 参数 **`config`** *object*
-  - **reducerConfig** *object* | *array* : reducer 的配置，格式分为单 reducer 和多 reducers 两种模式，以下为每个 reducer 的配置项：
-    - **name** *string* : 必填项，对应 reducer 的 name，在多 reducers 时作为选取目标 reducer 的 target 标记
+  - **reducerConfig** *object* | *array* : reducers 的配置，格式分为单 reducer 和多 reducers 两种模式，以下为每个 reducer 的配置项：
+    - **name** *string* : 必填项，对应 reducer 的 name，在多 reducers 时作为 store_state 的字段名，以及 mutation 中指定 reducer 用的 target
     - **initialState** *object* : 必填项，对应 reducer 的 state 结构和初始值
-    - **persist** *object* : 可选项，设置为 {} 可存储 reducer_state，可进一步配置，配置同 redux-persist
+    - **persist** *object* : 可选项，配置方法同 redux-persist 的 *persistConfig*
   - **returnPromise** *boolean* : 可选项，默认 false，设为 true 时 dispatch 类型的 api 执行后返回 Promise 对象
 - 返回项： `{ store, useSelector, setReducer, commitMutation, persistor }`
 
@@ -89,7 +89,7 @@ import { StoreCreator } from 'dream-redux'
 // 单 reducer 配置
 const config = {
   reducerConfig: {
-    name: 'app',  // 每个 reducer 的 name 对应着 store_state 中的 key 值，也对应 api 中指定的 target
+    name: 'app',
     initialState: {
       count: 0,
       list: []
@@ -98,7 +98,8 @@ const config = {
 }
 
 // 或者：
-// 多 reducers 配置 (reducerConfig 为数组时，即使只有一个 reducer 也视作多 reducers 配置)
+// 多 reducers 配置
+// 注意：当 reducerConfig 为数组时，即使只有一个 reducer 也视作多 reducers 配置
 const config = {
   reducerConfig: [
     {
@@ -121,7 +122,7 @@ export const { store, persistor, useSelector, setReducer, commitMutation } = new
 ```
 
 #### `useSelector(callback)`
-- 根据 callback 函数获取 store 中指定的 state 数据，等同于 react-redux 的 useSelector
+在 hook 组件中获取目标 state 的方法，等同于 react-redux 的 useSelector
 
 **例子**
 ```js
@@ -138,8 +139,38 @@ export default Example() {
 }
 ```
 
+#### `connect(mapStateToProps)`
+在 class 组件中获取目标 state 的 HOC 方法，等同于 react-redux 的 connect，只需传入 mapDispatchToProps 参数即可，派发 mutation 的方法用 commitMutation 代替。
+
+**Example**
+```js
+import React from 'react'
+import { connect } from 'dream-redux'
+
+const connectWrapper = connect(state => state)
+
+class Example extends React.Component {
+  constructor(props) {
+    super(props)
+    this.exampleMethod = this.exampleMethod.bind(this)
+  }
+
+  exampleMethod() {
+    const { count, list } = this.props
+    console.log('count', count)  // 'count', 0
+    console.log('list', list)    // 'list', []
+  }
+
+  render() {
+    return <div></div>
+  }
+}
+
+export default connect(Example)
+```
+
 #### `setReducer(target, operation, [returnPromise])`
-- 最基础的 *dispatch* API，可直接在 operation 中修改指定 target 的 reducer（简单粗暴 & 不常用）
+最基础的 *dispatch* API，可直接在 operation 中修改指定 target 的 reducer（简单粗暴 & 不常用）
 - 参数 **`target`** *string* : 必填项，目标 reducer 的 name
 - 参数 **`operation`** *function* : 必填项，可在方法体中直接修改指定 target 的 reducer_state
 - 参数 **`returnPromise`** *boolean* : 可选项，值为 true 时 setReducer 执行后会返回一个 Promise 对象
@@ -162,9 +193,9 @@ export default Example() {
 ```
 
 #### `commitMutation(mutation, [returnPromise])`
-- 核心 *dispatch* API，具有更新 reducer_state 的全部功能，高级版的 setReducer（正式项目中使用）
+核心 *dispatch* API，具有更新 reducer_state 的全部功能，高级版的 setReducer（正式项目中使用）
 - 参数 **`mutation`** *object* : 必填项，常见写法为构造一个返回 mutation 对象的函数，然后在 commitMutation 中传入参数执行
-  - **type** *string* : 可选项，此次 commit 行为的类型标记，为求更新过程可追踪，一般都会填
+  - **type** *string* : 可选项，此次 dispatch 行为的类型标记，为求更新过程可追踪，一般都会填
   - **target** *string* | *array* : 必填项，目标 reducer 的 name
   - **operation** *function* | *array* : 必填项，可在方法体中直接修改指定 target 的 reducer_state
 - 参数 **`returnPromise`** *boolean* : 可选项，值为 true 时 commitMutation 执行后会返回一个 Promise 对象
@@ -200,7 +231,7 @@ export default Example() {
 ### 同时修改多个 reducer_state
 项目开发中，出于可维护和针对大量 state 的性能优化的考虑，我们一般需要把所有数据划分到多个 reducers 中。这就不可避免会出现同时修改多个 reducers 中的某几个数据的情况。
 - setReducer 并不具备一对多的更新操作，只能对每个要更新的 reducer 专门进行一次 setReducer 操作。
-- commitMutation 则具有在只派发一次 mutation 的情况下更新指定的多个 reducer_state 的功能。
+- commitMutation 则具有在只派发一次 mutation 的情况下更新多个 reducer_state 的功能。
 
 ```js
 // mutations.js
@@ -232,7 +263,7 @@ export const mutationCreator = listItem => ({
 
 export const mutationCreator = () => {
   return (dispatch, getState) => {
-    SomeHttpRequest().then(res => {
+    return SomeHttpRequest().then(res => {
       console.log(res)  // { data: '这是 HTTP 请求返回的数据' }
       console.log(getState())  // store_state
 
@@ -276,7 +307,7 @@ export const mutationCreator = () => {
 ### dispatch 后返回 Promise 对象，以及获取最新的 store_state
 setReducer 和 commitMutation 的本质都是 store.dispatch 方法。所以如同常规 redux，进行 dispatch 操作后是无法立即获取更新完的 store_state 的。但实际开发中，有一些场景需要在 dispatch 后获取最新数据进行下一步操作，这很令人头疼。
 
-而 setReducer 和 commitMutation 可以通过设置最后一个参数来打开返回带有最新 store_state 的 Promise 对象，极大提高了开发的便利性。
+而 setReducer 和 commitMutation 可以通过把最后一个参数设为 true 来返回带有最新 store_state 的 Promise 对象，让业务逻辑更加顺畅。
 
 *注意：该功能尚未稳定，不保证在各种情景下均可正常使用，有异常情况请通过 issue 反馈。*
 
@@ -324,8 +355,8 @@ const config = {
         list: []
       },
       persist: {
-        whitelist: ['list']  // 白名单，只有 list 字段会被持久化存储
-        // blacklist: ['list']  // 黑名单，只有 list 字段不会被持久化存储
+        whitelist: ['list']  // 白名单，只有 list 字段会被缓存
+        // blacklist: ['list']  // 黑名单，只有 list 字段不会被缓存
       }
     },
     {
@@ -341,7 +372,7 @@ const config = {
 export const { store, persistor, useSelector, setReducer, commitMutation } = new StoreCreator(config)
 ```
 
-还需要在项目根文件引入 persistor：
+还需要在项目根文件通过 PersistGate 引入 persistor：
 ```js
 // src/index.jsx
 
@@ -360,4 +391,4 @@ ReactDOM.render(
   document.getElementById('root'),
 )
 ```
-
+这样就完成了符合项目需求的持久化配置。
