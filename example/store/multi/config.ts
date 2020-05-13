@@ -2,7 +2,7 @@ import { counterState, todoState } from './state'
 import { StoreConfig } from '../../../src/types'
 
 export const config: StoreConfig = {
-  reducer: [
+  reducerConfig: [
     {
       name: 'counter',
       initialState: counterState,

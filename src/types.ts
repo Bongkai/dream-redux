@@ -2,7 +2,7 @@ import { AnyAction } from 'redux'
 import { WebStorage } from 'redux-persist'
 
 export interface StoreConfig {
-  reducer: ReducerConfig | ReducerConfig[]
+  reducerConfig: ReducerConfig | ReducerConfig[]
   returnPromise?: boolean
   logger?: boolean
 }

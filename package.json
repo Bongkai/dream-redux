@@ -1,6 +1,6 @@
 {
   "name": "dream-redux",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "A fast-zero-built redux framework for react apps.",
   "main": "lib/dream-redux.js",
   "module": "es/dream-redux.js",
@@ -38,6 +38,8 @@
     "@rollup/plugin-babel": "^5.0.0",
     "@rollup/plugin-commonjs": "^11.1.0",
     "@rollup/plugin-node-resolve": "^7.1.3",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
     "rimraf": "^3.0.2",
     "rollup": "^2.8.2",
     "rollup-plugin-babel": "^4.4.0",

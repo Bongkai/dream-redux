@@ -9,7 +9,7 @@ interface Reducers {
 }
 
 export function combineReducers(config: StoreConfig) {
-  const reducersConfig = config.reducer
+  const reducersConfig = config.reducerConfig
 
   if (!Array.isArray(reducersConfig)) {
     if (reducersConfig.persist) {
@@ -22,15 +22,15 @@ export function combineReducers(config: StoreConfig) {
 
   const reducers = {} as Reducers
 
-  reducersConfig.forEach(reducerItem => {
-    if (reducerItem.persist) {
-      const persistConfig = _createPersistConfig(reducerItem)
-      reducers[reducerItem.name] = persistReducer(
+  reducersConfig.forEach(itemConfig => {
+    if (itemConfig.persist) {
+      const persistConfig = _createPersistConfig(itemConfig)
+      reducers[itemConfig.name] = persistReducer(
         persistConfig,
-        createReducer(reducerItem),
+        createReducer(itemConfig),
       )
     } else {
-      reducers[reducerItem.name] = createReducer(reducerItem)
+      reducers[itemConfig.name] = createReducer(itemConfig)
     }
   })
 

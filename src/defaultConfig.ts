@@ -1,7 +1,7 @@
 import { StoreConfig } from './types'
 
 export const defaultConfig: StoreConfig = {
-  reducer: [],
+  reducerConfig: [],
   returnPromise: false,
   logger: false,
 }
