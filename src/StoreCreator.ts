@@ -13,7 +13,6 @@ export class StoreCreator {
   store: Store
   useSelector = useSelector
   persistor: Persistor
-  _returnPromise: boolean = false
 
   constructor(userConfig: StoreConfig, userMiddlewares: any[] = []) {
     const config = Object.assign({}, defaultConfig, userConfig)
@@ -34,9 +33,6 @@ export class StoreCreator {
     )
 
     this.persistor = persistStore(this.store)
-    if (typeof config.returnPromise !== 'undefined') {
-      this._returnPromise = config.returnPromise
-    }
 
     this.setReducer = this.setReducer.bind(this)
     this.commitMutation = this.commitMutation.bind(this)
@@ -46,7 +42,7 @@ export class StoreCreator {
   setReducer(
     name: string,
     operation: Operation,
-    returnPromise: boolean = this._returnPromise,
+    returnPromise: boolean = false,
   ) {
     const mutation: Mutation = {
       type: `^OPERATE^_^REDUCER^`,
@@ -58,7 +54,7 @@ export class StoreCreator {
   }
 
   // 提交处理 mutation
-  commitMutation(mutation: any, returnPromise: boolean = this._returnPromise) {
+  commitMutation(mutation: any, returnPromise: boolean = false) {
     return this._execDispatch(mutation, returnPromise)
   }
 

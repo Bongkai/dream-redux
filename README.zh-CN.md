@@ -79,7 +79,6 @@ ReactDOM.render(
     - **name** *string* : 必填项，对应 reducer 的 name，在多 reducers 时作为 store_state 的字段名，以及 mutation 中指定 reducer 用的 target
     - **initialState** *object* : 必填项，对应 reducer 的 state 结构和初始值
     - **persist** *object* : 可选项，配置方法同 redux-persist 的 *persistConfig*
-  - **returnPromise** *boolean* : 可选项，默认 false，设为 true 时 dispatch 类型的 api 执行后返回 Promise 对象
 - 返回项： `{ store, useSelector, setReducer, commitMutation, persistor }`
 
 **例子**

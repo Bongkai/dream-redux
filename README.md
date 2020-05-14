@@ -70,7 +70,6 @@ A class to create *store* and a series of APIs
     - **name** *string* : *required*, reducer name, used as *store_state* field and *mutation* target
     - **initialState** *object* : *required*, *reducer_state* structure and initialValue
     - **persist** *object* : *optional*, is the same as *persistConfig* in *redux-persist*
-  - **returnPromise** *boolean* : *optional*, `false` by default, set `true` to return Promise when dispatching
 - returns: `{ store, useSelector, setReducer, commitMutation, persistor }`
 
 **Example**
