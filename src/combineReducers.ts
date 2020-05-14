@@ -9,14 +9,17 @@ interface Reducers {
 }
 
 export function combineReducers(config: StoreConfig) {
-  const reducersConfig = config.reducerConfig
+  const { reducerConfig: reducersConfig, allowOperationReturns } = config
 
   if (!Array.isArray(reducersConfig)) {
     if (reducersConfig.persist) {
       const persistConfig = _createPersistConfig(reducersConfig)
-      return persistReducer(persistConfig, createReducer(reducersConfig))
+      return persistReducer(
+        persistConfig,
+        createReducer(reducersConfig, allowOperationReturns),
+      )
     } else {
-      return createReducer(reducersConfig)
+      return createReducer(reducersConfig, allowOperationReturns)
     }
   }
 
@@ -27,10 +30,13 @@ export function combineReducers(config: StoreConfig) {
       const persistConfig = _createPersistConfig(itemConfig)
       reducers[itemConfig.name] = persistReducer(
         persistConfig,
-        createReducer(itemConfig),
+        createReducer(itemConfig, allowOperationReturns),
       )
     } else {
-      reducers[itemConfig.name] = createReducer(itemConfig)
+      reducers[itemConfig.name] = createReducer(
+        itemConfig,
+        allowOperationReturns,
+      )
     }
   })
 
