@@ -56,7 +56,7 @@ According to redux's design, the whole *state* which want to be managed is put i
 
 *Reducers* is written to manage state. *store_state* can use a single reducer, we call it *single-reducer* mode; or split into partial states and use many reducers, and call it *multi-reducers* mode. Each partial state managed by a reducer is called **reducer_state** in the following introduction.
 
-The regular redux coding is complex and confused to the beginners so it keep them away. And this is what *dream-redux* want to solve.
+The regular redux coding is complex and confused to the beginners so it keeps them away. And this is what *dream-redux* want to solve.
 
 ## Motivation & Advantage
 **dream-redux** works with redux and a powerful immutable repo —— *Immer.js*, and enhances *action* to *mutation*. You can mutate *reducer_state* "directly" in *mutation*, and then emit with a dispatch function —— *commitMutation*, and then an update process is done.
@@ -66,11 +66,11 @@ The regular redux coding is complex and confused to the beginners so it keep the
 #### `StoreCreator(config)`
 A class to create *store* and a series of APIs
 - parameter **`config`** *object* 
-  - **reducerConfig** *object* | *array* : reducers config, divided into *single-reducer* mode and *multi-reducers* mode
+  - **reducerConfig** *object* | *array* : *required*, reducers config, divided into *single-reducer* mode and *multi-reducers* mode
     - **name** *string* : *required*, reducer name, used as *store_state* field and *mutation* target
     - **initialState** *object* : *required*, *reducer_state* structure and initialValue
     - **persist** *object* : *optional*, is the same as *persistConfig* in *redux-persist*
-  - **returnPromise** *boolean* : *optional*, `false` by default, set `true` to return Promise when dispatching
+  - **allowOperationReturns** *boolean* : *optional*, set `true` to allow returning value in *operation* function body; by default it can only mutate state directly and returns will be ignored
 - returns: `{ store, useSelector, setReducer, commitMutation, persistor }`
 
 **Example**
@@ -131,7 +131,7 @@ export default Example() {
 ```
 
 #### `connect(mapStateToProps)`
-A HOC to get target state in class components, is the same as *connect* with param *mapStateToProps* in react-redux, and param *mapDispatchToProps* is unnecessary, use *commitMutation* instead.
+A HOC to get target state in class components, is the same as *connect* with param *mapStateToProps* in react-redux, and param *mapDispatchToProps* is unnecessary, use *commitMutation* to dispatch instead.
 
 **Example**
 ```js

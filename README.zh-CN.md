@@ -67,7 +67,7 @@ ReactDOM.render(
 **dream-redux** 的优势主要有：
 - 无需进行初始化的繁琐搭建过程，redux 系列库和中间件仅用一行代码搞定
 - 无需手写 reducer，只需要在 StoreCreator 初始化时传入 name，initialState 等配置项就能自动构建 reducer
-- mutation.type 可以根据需要选择不同的书写规范，不强求让 type 在多个文件中反复横跳，甚至可以省略不写
+- mutation.type 可以根据需要选择不同的书写规范，无需让 type 在多个文件中反复横跳，甚至可以省略不写
 - 最重要的，在 mutation.operation 中可以直接修改 reducer_state 的值，无需自己构造新的 reducer_state
 
 ## API 基本用法
@@ -75,11 +75,11 @@ ReactDOM.render(
 #### `StoreCreator(config)`
 创建核心对象 store 和一系列 api 的类对象
 - 参数 **`config`** *object*
-  - **reducerConfig** *object* | *array* : reducers 的配置，格式分为单 reducer 和多 reducers 两种模式，以下为每个 reducer 的配置项：
+  - **reducerConfig** *object* | *array* : 必填项，reducers 的配置，格式分为单 reducer 和多 reducers 两种模式，以下为每个 reducer 的配置项：
     - **name** *string* : 必填项，对应 reducer 的 name，在多 reducers 时作为 store_state 的字段名，以及 mutation 中指定 reducer 用的 target
     - **initialState** *object* : 必填项，对应 reducer 的 state 结构和初始值
     - **persist** *object* : 可选项，配置方法同 redux-persist 的 *persistConfig*
-  - **returnPromise** *boolean* : 可选项，默认 false，设为 true 时 dispatch 类型的 api 执行后返回 Promise 对象
+  - **allowOperationReturns** *boolean* : 可选项，设为 `true` 允许通过在 operation 中返回自己构造的新 state 来更新状态；默认是只能直接修改 state，返回值会被忽略
 - 返回项： `{ store, useSelector, setReducer, commitMutation, persistor }`
 
 **例子**
@@ -173,7 +173,7 @@ export default connect(Example)
 最基础的 *dispatch* API，可直接在 operation 中修改指定 target 的 reducer（简单粗暴 & 不常用）
 - 参数 **`target`** *string* : 必填项，目标 reducer 的 name
 - 参数 **`operation`** *function* : 必填项，可在方法体中直接修改指定 target 的 reducer_state
-- 参数 **`returnPromise`** *boolean* : 可选项，值为 true 时 setReducer 执行后会返回一个 Promise 对象
+- 参数 **`returnPromise`** *boolean* : 可选项，值为 `true` 时 setReducer 执行后会返回一个 Promise 对象
 
 **例子**
 ```js
@@ -198,7 +198,7 @@ export default Example() {
   - **type** *string* : 可选项，此次 dispatch 行为的类型标记，为求更新过程可追踪，一般都会填
   - **target** *string* | *array* : 必填项，目标 reducer 的 name
   - **operation** *function* | *array* : 必填项，可在方法体中直接修改指定 target 的 reducer_state
-- 参数 **`returnPromise`** *boolean* : 可选项，值为 true 时 commitMutation 执行后会返回一个 Promise 对象
+- 参数 **`returnPromise`** *boolean* : 可选项，值为 `true` 时 commitMutation 执行后会返回一个 Promise 对象
 - *setReducer* 和 *commitMutation* 虽然更新 reducer_state 的方式和常规 redux 不同，但仍旧遵循 redux 的设计原则，即每次命令 reducer 更新后返回一个全新的 reducer_state 对象，再让其触发 react 的刷新
 
 **例子**

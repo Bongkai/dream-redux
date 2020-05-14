@@ -3,7 +3,7 @@ import { WebStorage } from 'redux-persist'
 
 export interface StoreConfig {
   reducerConfig: ReducerConfig | ReducerConfig[]
-  returnPromise?: boolean
+  allowOperationReturns?: boolean
   logger?: boolean
 }
 
