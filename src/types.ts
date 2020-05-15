@@ -9,7 +9,7 @@ export interface StoreConfig {
 
 export interface ReducerConfig {
   name: string
-  initialState: PlainObject
+  initialState: PlainObjectState
   persist?: PersistConfig
 }
 
@@ -19,15 +19,20 @@ export interface Mutation extends AnyAction {
   operation: Operation | Operation[]
 }
 
-export type Operation = (state: PlainObject) => void | PlainObject
+export type Operation = (state: PlainObjectState) => void | PlainObjectState
 
-export interface PlainObject {
+export interface PlainObjectState {
   [key: string]: any
 }
 
-interface PersistConfig {
-  key?: string
+type PersistConfig = {
+  version?: number
   storage?: WebStorage
-  whitelist?: string[]
-  blacklist?: string[]
+  key?: string
+  keyPrefix?: string
+  blacklist?: Array<string>
+  whitelist?: Array<string>
+  throttle?: number
+  debug?: boolean
+  timeout?: number
 }
