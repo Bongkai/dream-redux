@@ -1,6 +1,6 @@
 {
   "name": "dream-redux",
-  "version": "0.1.5",
+  "version": "0.1.7",
   "description": "A fast-zero-built redux framework for react apps.",
   "main": "lib/dream-redux.js",
   "module": "es/dream-redux.js",

@@ -1,8 +1,11 @@
+import { Mutation } from 'src/types'
+
 export const typeMiddleware = (store: any) => (next: Function) => (
-  mutation: any,
+  mutation: Mutation,
 ) => {
   if (mutation.target) {
-    mutation.type = `@@${mutation.target}/${mutation.type}`
+    const type = mutation.type || '^COMMIT^_^MUTATION^'
+    mutation.type = `@@${mutation.target as string}/${type}`
   }
   return next(mutation)
 }

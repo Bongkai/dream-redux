@@ -1,5 +1,7 @@
+import { Mutation } from 'src/types'
+
 export const multiMiddleware = ({ dispatch }) => (next: Function) => (
-  mutation: any,
+  mutation: Mutation,
 ) => {
   const { type, target, operation } = mutation
   if (Array.isArray(operation)) {
