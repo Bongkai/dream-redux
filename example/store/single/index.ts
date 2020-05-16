@@ -1,4 +1,4 @@
-import { StoreCreator } from '../../../src/index'
+import { StoreCreator } from '../../../es/dream-redux'
 import { config } from './config'
 
 export const {
