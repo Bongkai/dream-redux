@@ -1,4 +1,4 @@
-import { Mutation } from 'src/types'
+import { Mutation } from '../types'
 
 export const multiMiddleware = ({ dispatch }) => (next: Function) => (
   mutation: Mutation,

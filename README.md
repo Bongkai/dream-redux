@@ -120,7 +120,7 @@ A hook to get target state in hook components, is the same as *useSelector* in r
 import React from 'react'
 import { useSelector } from '@/store/index.js' // store dir relative path
 
-export default Example() {
+export default function Example() {
   const { count } = useSelector(state => state)
   const list = useSelector(state => state.list)
   console.log('count', count)  // 'count', 0
@@ -171,7 +171,7 @@ Basic *dispatch* API to mutate *reducer_state* directly
 import React from 'react'
 import { setReducer } from '@/store/index.js' // store dir relative path
 
-export default Example() {
+export default function Example() {
   setReducer('app', state => {
     state.count++
     state.list.push('This is an example text')
@@ -183,7 +183,7 @@ export default Example() {
 
 #### `commitMutation(mutation, [returnPromise])`
 Core *dispatch* API, the advanced version of *setReducer*
-- parameter **`mutation`** *object* | *function* : *required*, usually written as a creator function that returns an *mutation object* obtains all update infomation, and run with necessary params in *commitMutation*; it also can be presented as a function returns *Promise* when handling async code
+- parameter **`mutation`** *object* | *function* | *array*: *required*, usually written as a creator function that returns a *mutation object* obtains all update infomation, and run with necessary params in *commitMutation*; it also can be presented as a function returns *Promise* when handling async code
   - **type** *string* : *optional*, a flag used for process tracing
   - **target** *string* | *array* : *required*, specify reducer(s)'s *name* field
   - **operation** *function* | *array* : *required*, privide target *reducer_state* to mutate directly in function body
@@ -194,7 +194,7 @@ Core *dispatch* API, the advanced version of *setReducer*
 import React from 'react'
 import { commitMutation } from '@/store/index.js' // store dir relative path
 
-export default Example() {
+export default function Example() {
   const mutationCreator = listItem => {
     // return a mutation object
     return {
@@ -295,7 +295,7 @@ In regular redux, you cannot get latest *store_state* immediately after *dispatc
 import React from 'react'
 import { setReducer } from '@/store/index.js' // store dir relative path
 
-export default Example() {
+export default function Example() {
   setReducer('app', state => {
     state.count++
   }, true).then(state => {

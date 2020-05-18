@@ -1,4 +1,4 @@
-import { StoreCreator } from '../../../es/dream-redux'
+import { StoreCreator } from '../../../src/index'
 import { config } from './config'
 import { IStoreState, ICounterState, ITodoState } from './state'
 
