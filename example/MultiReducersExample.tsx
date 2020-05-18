@@ -12,7 +12,7 @@ import {
   deleteTodoItem,
 } from './store/multi/mutations'
 
-export default function SingleReducerExample() {
+export default function MultiReducerExample() {
   const [inputValue, setInputValue] = useState('')
   const { count } = useCounterSelector()
   const { list } = useTodoSelector()
@@ -23,14 +23,20 @@ export default function SingleReducerExample() {
 
   function createTodo() {
     if (inputValue) {
-      commitMutation(createTodoItem(inputValue))
+      // commitMutation(createTodoItem(inputValue))
+      commitMutation([changeCounter(true), createTodoItem(inputValue)])
       setInputValue('')
     }
   }
 
-  function createTodoAsync() {
+  async function createTodoAsync() {
     if (inputValue) {
-      commitMutation(createTodoItemAsync(inputValue))
+      // commitMutation(createTodoItemAsync(inputValue))
+      const state = await commitMutation(
+        [changeCounter(true), createTodoItemAsync(inputValue)],
+        true,
+      )
+      console.log(state)
       setInputValue('')
     }
   }

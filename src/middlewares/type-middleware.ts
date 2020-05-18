@@ -1,4 +1,4 @@
-import { Mutation } from 'src/types'
+import { Mutation } from '../types'
 
 export const typeMiddleware = (store: any) => (next: Function) => (
   mutation: Mutation,

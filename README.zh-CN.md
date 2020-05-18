@@ -129,7 +129,7 @@ export const { store, persistor, useSelector, setReducer, commitMutation } = new
 import React from 'react'
 import { useSelector } from '@/store/index.js' // store 文件夹的相对目录
 
-export default Example() {
+export default function Example() {
   const { count } = useSelector(state => state)
   const list = useSelector(state => state.list)
   console.log('count', count)  // 'count', 0
@@ -180,7 +180,7 @@ export default connect(Example)
 import React from 'react'
 import { setReducer } from '@/store/index.js' // store 文件夹的相对目录
 
-export default Example() {
+export default function Example() {
   // 最基本的用法，直接在 state 上修改，无需通过常规的 dispatch -> action -> reducer 即可更新 reducer_state
   setReducer('app', state => {
     // 这里的 state 在单 reducer 时是 store_state，多 reducers 时是 name 为 app 的 reducer_state
@@ -194,7 +194,7 @@ export default Example() {
 
 #### `commitMutation(mutation, [returnPromise])`
 核心 *dispatch* API，具有更新 reducer_state 的全部功能，高级版的 setReducer（正式项目中使用）
-- 参数 **`mutation`** *object* : 必填项，常见写法为构造一个返回 mutation 对象的函数，然后在 commitMutation 中传入参数执行
+- 参数 **`mutation`** *object* | *function* | *array* : 必填项，常见写法为构造一个返回 mutation 对象的函数，然后在 commitMutation 中传入参数执行；mutation 的字段如下：
   - **type** *string* : 可选项，此次 dispatch 行为的类型标记，为求更新过程可追踪，一般都会填
   - **target** *string* | *array* : 必填项，目标 reducer 的 name
   - **operation** *function* | *array* : 必填项，可在方法体中直接修改指定 target 的 reducer_state
@@ -206,7 +206,7 @@ export default Example() {
 import React from 'react'
 import { commitMutation } from '@/store/index.js' // store 文件夹的相对目录
 
-export default Example() {
+export default function Example() {
   const mutationCreator = listItem => {
     // 返回 mutation 对象
     return {
@@ -315,7 +315,7 @@ setReducer 和 commitMutation 的本质都是 store.dispatch 方法。所以如�
 import React from 'react'
 import { setReducer } from '@/store/index.js' // store 文件夹的相对目录
 
-export default Example() {
+export default function Example() {
   setReducer('app', state => {
     state.count++
   }, true).then(state => {

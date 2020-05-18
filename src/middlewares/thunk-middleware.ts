@@ -1,7 +1,7 @@
 /* Author: https://github.com/reduxjs/redux-thunk */
 /* Version: 2.3.0 */
 
-import { Mutation } from 'src/types'
+import { Mutation } from '../types'
 
 export const thunkMiddleware = ({ dispatch, getState }) => (next: Function) => (
   mutation: Mutation | Function,
