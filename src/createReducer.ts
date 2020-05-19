@@ -8,7 +8,10 @@ export const createReducer = (
   allowOperationReturns: boolean = false,
 ) => (state = reducerConfig.initialState, mutation: AnyAction) => {
   return produce(state, (draft: PlainObjectState) => {
-    if (mutation.type.startsWith(`@@${reducerConfig.name}/`)) {
+    if (
+      mutation.$type &&
+      mutation.$type.startsWith(`@@${reducerConfig.name}/`)
+    ) {
       const ret = mutation.operation && mutation.operation(draft)
       if (allowOperationReturns === true) {
         return ret

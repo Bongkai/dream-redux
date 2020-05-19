@@ -23,8 +23,7 @@ export default function MultiReducerExample() {
 
   function createTodo() {
     if (inputValue) {
-      // commitMutation(createTodoItem(inputValue))
-      commitMutation([changeCounter(true), createTodoItem(inputValue)])
+      commitMutation(createTodoItem(inputValue))
       setInputValue('')
     }
   }

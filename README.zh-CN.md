@@ -121,7 +121,7 @@ const config = {
 export const { store, persistor, useSelector, setReducer, commitMutation } = new StoreCreator(config)
 ```
 
-#### `useSelector(callback)`
+#### `useSelector(selectorFunc)`
 在 hook 组件中获取目标 state 的方法，等同于 react-redux 的 useSelector
 
 **例子**
@@ -130,7 +130,7 @@ import React from 'react'
 import { useSelector } from '@/store/index.js' // store 文件夹的相对目录
 
 export default function Example() {
-  const { count } = useSelector(state => state)
+  const count = useSelector(state => state.count)
   const list = useSelector(state => state.list)
   console.log('count', count)  // 'count', 0
   console.log('list', list)    // 'list', []
