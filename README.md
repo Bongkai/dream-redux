@@ -12,6 +12,22 @@ A fast-zero-build redux framework for react apps.
 npm install --save dream-redux
 ```
 
+## Table of contents
+* [Quick start](#Quick-start)
+* [Concept](#Concept)
+* [Motivation & Advantage](#Motivation-&-Advantage)
+* [API Basic Usage](#API-Basic-Usage)
+  * [StoreCreator](#StoreCreator(config))
+  * [useSelector](#useSelector(selectorFunc))
+  * [connect](#connect(mapStateToProps))
+  * [setReducer](#setReducer(target,-operation,-[returnPromise]))
+  * [commitMutation](#commitMutation(mutation,-[returnPromise]))
+* [API Advanced Usage](#API-Advanced-Usage)
+  * [Mutating multiple reducers at the same time](#Mutating-multiple-reducers-at-the-same-time)
+  * [Asynchronous mutation](#Asynchronous-mutation)
+  * [Return Promise and get the latest state](#Return-Promise-and-get-the-latest-state)
+  * [Persistence storage](#Persistence-storage)
+
 ## Quick start
 1. Initialize a *store* instance:
 ```js
