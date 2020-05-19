@@ -11,6 +11,22 @@
 npm install --save dream-redux
 ```
 
+## 目录
+* [开始使用](#开始使用)
+* [了解概念](#了解概念)
+* [项目优势](#项目优势)
+* [API 基本用法](#API-基本用法)
+  * [StoreCreator](#StoreCreator(config))
+  * [useSelector](#useSelector(selectorFunc))
+  * [connect](#connect(mapStateToProps))
+  * [setReducer](#setReducer(target,-operation,-[returnPromise]))
+  * [commitMutation](#commitMutation(mutation,-[returnPromise]))
+* [API 高级用法](#API-高级用法)
+  * [同时修改多个 reducer_state](#同时修改多个-reducer_state)
+  * [在 mutation 中进行异步操作](#在-mutation-中进行异步操作)
+  * [dispatch 后返回 Promise 对象，以及获取最新的 store_state](#dispatch-后返回-Promise-对象，以及获取最新的-store_state)
+  * [状态持久化存储](#状态持久化存储)
+
 ## 开始使用
 1. 在 *src/store/index.js* 中初始化 store 实例：
 ```js
@@ -61,7 +77,7 @@ ReactDOM.render(
 
 看到这里，刚接触 redux 的朋友是不是被这个更新流程给绕晕了，再加上繁琐的初始搭建过程，使其对新手特别不友好，这也是 redux 受人诟病的缺点之一。而这也就是 dream-redux 想要解决的问题。
 
-## 项目动机和优势
+## 项目优势
 **dream-redux** 通过一个强大的 immutable 库 —— Immer.js 与 redux 相结合，并把 action 改造成 mutation，让开发者可以在 mutation 中 “直接” 对 reducer_state 进行修改。然后通过封装过的 dispatch 方法 —— *commitMutation* 把 mutation 当作参数执行一下，就完成了一次状态更新。无需构建 reducer 函数，无需在修改 state 后构造一个新的 state 返回，不仅减少了大量的重复代码，还降低了出错的概率。
 
 **dream-redux** 的优势主要有：
