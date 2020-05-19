@@ -16,15 +16,15 @@ npm install --save dream-redux
 * [了解概念](#了解概念)
 * [项目优势](#项目优势)
 * [API 基本用法](#API-基本用法)
-  * [StoreCreator](#StoreCreator(config))
-  * [useSelector](#useSelector(selectorFunc))
-  * [connect](#connect(mapStateToProps))
-  * [setReducer](#setReducer(target,-operation,-[returnPromise]))
-  * [commitMutation](#commitMutation(mutation,-[returnPromise]))
+  * [StoreCreator](#StoreCreator)
+  * [useSelector](#useSelector)
+  * [connect](#connect)
+  * [setReducer](#setReducer)
+  * [commitMutation](#commitMutation)
 * [API 高级用法](#API-高级用法)
   * [同时修改多个 reducer_state](#同时修改多个-reducer_state)
   * [在 mutation 中进行异步操作](#在-mutation-中进行异步操作)
-  * [dispatch 后返回 Promise 对象，以及获取最新的 store_state](#dispatch-后返回-Promise-对象，以及获取最新的-store_state)
+  * [dispatch 后获取最新的 store_state](#dispatch-后获取最新的-store_state)
   * [状态持久化存储](#状态持久化存储)
 
 ## 开始使用
@@ -88,8 +88,9 @@ ReactDOM.render(
 
 ## API 基本用法
 
-#### `StoreCreator(config)`
+#### `StoreCreator`
 创建核心对象 store 和一系列 api 的类对象
+- 用法 `StoreCreator(config)`
 - 参数 **`config`** *object*
   - **reducerConfig** *object* | *array* : 必填项，reducers 的配置，格式分为单 reducer 和多 reducers 两种模式，以下为每个 reducer 的配置项：
     - **name** *string* : 必填项，对应 reducer 的 name，在多 reducers 时作为 store_state 的字段名，以及 mutation 中指定 reducer 用的 target
@@ -137,8 +138,9 @@ const config = {
 export const { store, persistor, useSelector, setReducer, commitMutation } = new StoreCreator(config)
 ```
 
-#### `useSelector(selectorFunc)`
+### `useSelector`
 在 hook 组件中获取目标 state 的方法，等同于 react-redux 的 useSelector
+- 用法 `useSelector(selectorFunc)`
 
 **例子**
 ```js
@@ -155,8 +157,9 @@ export default function Example() {
 }
 ```
 
-#### `connect(mapStateToProps)`
-在 class 组件中获取目标 state 的 HOC 方法，等同于 react-redux 的 connect，只需传入 mapDispatchToProps 参数即可，派发 mutation 的方法用 commitMutation 代替。
+### `connect`
+在 class 组件中获取目标 state 的 HOC 方法，等同于 react-redux 的 connect，只需传入 mapStateToProps 参数即可，派发 mutation 的方式用 commitMutation 代替
+- 用法 `connect(mapStateToProps)`
 
 **Example**
 ```js
@@ -185,8 +188,9 @@ class Example extends React.Component {
 export default connect(Example)
 ```
 
-#### `setReducer(target, operation, [returnPromise])`
+### `setReducer`
 最基础的 *dispatch* API，可直接在 operation 中修改指定 target 的 reducer（简单粗暴 & 不常用）
+- 用法 `setReducer(target, operation, [returnPromise])`
 - 参数 **`target`** *string* : 必填项，目标 reducer 的 name
 - 参数 **`operation`** *function* : 必填项，可在方法体中直接修改指定 target 的 reducer_state
 - 参数 **`returnPromise`** *boolean* : 可选项，值为 `true` 时 setReducer 执行后会返回一个 Promise 对象
@@ -208,8 +212,9 @@ export default function Example() {
 }
 ```
 
-#### `commitMutation(mutation, [returnPromise])`
+### `commitMutation`
 核心 *dispatch* API，具有更新 reducer_state 的全部功能，高级版的 setReducer（正式项目中使用）
+- 用法 `commitMutation(mutation, [returnPromise])`
 - 参数 **`mutation`** *object* | *function* | *array* : 必填项，常见写法为构造一个返回 mutation 对象的函数，然后在 commitMutation 中传入参数执行；mutation 的字段如下：
   - **type** *string* : 可选项，此次 dispatch 行为的类型标记，为求更新过程可追踪，一般都会填
   - **target** *string* | *array* : 必填项，目标 reducer 的 name
@@ -320,10 +325,10 @@ export const mutationCreator = () => {
 }
 ```
 
-### dispatch 后返回 Promise 对象，以及获取最新的 store_state
+### dispatch 后获取最新的 store_state
 setReducer 和 commitMutation 的本质都是 store.dispatch 方法。所以如同常规 redux，进行 dispatch 操作后是无法立即获取更新完的 store_state 的。但实际开发中，有一些场景需要在 dispatch 后获取最新数据进行下一步操作，这很令人头疼。
 
-而 setReducer 和 commitMutation 可以通过把最后一个参数设为 true 来返回带有最新 store_state 的 Promise 对象，让业务逻辑更加顺畅。
+而 setReducer 和 commitMutation 可以通过把最后一个参数设为 true 来返回带有最新 store_state 的 **Promise** 对象，让业务逻辑更加顺畅。
 
 *注意：该功能尚未稳定，不保证在各种情景下均可正常使用，有异常情况请通过 issue 反馈。*
 

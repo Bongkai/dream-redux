@@ -17,15 +17,15 @@ npm install --save dream-redux
 * [Concept](#Concept)
 * [Motivation & Advantage](#Motivation-&-Advantage)
 * [API Basic Usage](#API-Basic-Usage)
-  * [StoreCreator](#StoreCreator(config))
-  * [useSelector](#useSelector(selectorFunc))
-  * [connect](#connect(mapStateToProps))
-  * [setReducer](#setReducer(target,-operation,-[returnPromise]))
-  * [commitMutation](#commitMutation(mutation,-[returnPromise]))
+  * [StoreCreator](#StoreCreator)
+  * [useSelector](#useSelector)
+  * [connect](#connect)
+  * [setReducer](#setReducer)
+  * [commitMutation](#commitMutation)
 * [API Advanced Usage](#API-Advanced-Usage)
   * [Mutating multiple reducers at the same time](#Mutating-multiple-reducers-at-the-same-time)
   * [Asynchronous mutation](#Asynchronous-mutation)
-  * [Return Promise and get the latest state](#Return-Promise-and-get-the-latest-state)
+  * [Access latest store_state after dispatch](#Access-latest-store_state-after-dispatch)
   * [Persistence storage](#Persistence-storage)
 
 ## Quick start
@@ -79,8 +79,9 @@ The regular redux coding is complex and confused to the beginners so it keeps th
 
 ## API Basic Usage
 
-#### `StoreCreator(config)`
+### `StoreCreator`
 A class to create *store* and a series of APIs
+- usage `StoreCreator(config)`
 - parameter **`config`** *object* 
   - **reducerConfig** *object* | *array* : *required*, reducers config, divided into *single-reducer* mode and *multi-reducers* mode
     - **name** *string* : *required*, reducer name, used as *store_state* field and *mutation* target
@@ -128,8 +129,9 @@ const config = {
 export const { store, persistor, useSelector, setReducer, commitMutation } = new StoreCreator(config)
 ```
 
-#### `useSelector(selectorFunc)`
+### `useSelector`
 A hook to get target state in hook components, is the same as *useSelector* in react-redux
+- usage `useSelector(selectorFunc)`
 
 **Example**
 ```js
@@ -146,8 +148,9 @@ export default function Example() {
 }
 ```
 
-#### `connect(mapStateToProps)`
+### `connect`
 A HOC to get target state in class components, is the same as *connect* with param *mapStateToProps* in react-redux, and param *mapDispatchToProps* is unnecessary, use *commitMutation* to dispatch instead.
+- usage `connect(mapStateToProps)`
 
 **Example**
 ```js
@@ -176,8 +179,9 @@ class Example extends React.Component {
 export default connect(Example)
 ```
 
-#### `setReducer(target, operation, [returnPromise])`
+### `setReducer`
 Basic *dispatch* API to mutate *reducer_state* directly
+- usage `setReducer(target, operation, [returnPromise])`
 - parameter **`target`** *string* : *required*, specify reducer's *name* field
 - parameter **`operation`** *function* : *required*, privide target *reducer_state* to mutate directly in function body
 - parameter **`returnPromise`** *boolean* : *optional*, `false` by default, set `true` to return Promise when dispatching
@@ -197,8 +201,9 @@ export default function Example() {
 }
 ```
 
-#### `commitMutation(mutation, [returnPromise])`
+### `commitMutation`
 Core *dispatch* API, the advanced version of *setReducer*
+- usage `commitMutation(mutation, [returnPromise])`
 - parameter **`mutation`** *object* | *function* | *array*: *required*, usually written as a creator function that returns a *mutation object* obtains all update infomation, and run with necessary params in *commitMutation*; it also can be presented as a function returns *Promise* when handling async code
   - **type** *string* : *optional*, a flag used for process tracing
   - **target** *string* | *array* : *required*, specify reducer(s)'s *name* field
@@ -302,7 +307,7 @@ export const mutationCreator = () => {
 }
 ```
 
-### Return Promise and get the latest state
+### Access latest store_state after dispatch
 In regular redux, you cannot get latest *store_state* immediately after *dispatch*, but now it come true if you set the last parameter to `true` in *setReducer* and *commitMutation* and it will return a Promise with latest *store_state*.
 
 *Notice: This is not a stable function yet, please feedback via Issue if it doesn't work.*
