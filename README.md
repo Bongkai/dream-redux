@@ -112,7 +112,7 @@ const config = {
 export const { store, persistor, useSelector, setReducer, commitMutation } = new StoreCreator(config)
 ```
 
-#### `useSelector(callback)`
+#### `useSelector(selectorFunc)`
 A hook to get target state in hook components, is the same as *useSelector* in react-redux
 
 **Example**
@@ -121,7 +121,7 @@ import React from 'react'
 import { useSelector } from '@/store/index.js' // store dir relative path
 
 export default function Example() {
-  const { count } = useSelector(state => state)
+  const count = useSelector(state => state.count)
   const list = useSelector(state => state.list)
   console.log('count', count)  // 'count', 0
   console.log('list', list)    // 'list', []
