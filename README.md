@@ -81,7 +81,7 @@ The regular redux coding is complex and confused to the beginners so it keeps th
 
 ### `StoreCreator`
 A class to create *store* and a series of APIs
-- usage `StoreCreator(config)`
+- usage `new StoreCreator(config)`
 - parameter **`config`** *object* 
   - **reducerConfig** *object* | *array* : *required*, reducers config, divided into *single-reducer* mode and *multi-reducers* mode
     - **name** *string* : *required*, reducer name, used as *store_state* field and *mutation* target
@@ -90,7 +90,6 @@ A class to create *store* and a series of APIs
   - **allowOperationReturns** *boolean* : *optional*, set `true` to allow returning value in *operation* function body; by default it can only mutate state directly and returns will be ignored
 - returns: `{ store, useSelector, setReducer, commitMutation, persistor }`
 
-**Example**
 ```js
 import { StoreCreator } from 'dream-redux'
 
@@ -133,7 +132,6 @@ export const { store, persistor, useSelector, setReducer, commitMutation } = new
 A hook to get target state in hook components, is the same as *useSelector* in react-redux
 - usage `useSelector(selectorFunc)`
 
-**Example**
 ```js
 import React from 'react'
 import { useSelector } from '@/store/index.js' // store dir relative path
@@ -152,7 +150,6 @@ export default function Example() {
 A HOC to get target state in class components, is the same as *connect* with param *mapStateToProps* in react-redux, and param *mapDispatchToProps* is unnecessary, use *commitMutation* to dispatch instead.
 - usage `connect(mapStateToProps)`
 
-**Example**
 ```js
 import React from 'react'
 import { connect } from 'dream-redux'
@@ -186,18 +183,19 @@ Basic *dispatch* API to mutate *reducer_state* directly
 - parameter **`operation`** *function* : *required*, privide target *reducer_state* to mutate directly in function body
 - parameter **`returnPromise`** *boolean* : *optional*, `false` by default, set `true` to return Promise when dispatching
 
-**Example**
 ```js
 import React from 'react'
 import { setReducer } from '@/store/index.js' // store dir relative path
 
 export default function Example() {
-  setReducer('app', state => {
-    state.count++
-    state.list.push('This is an example text')
-  })
-
-  return <div></div>
+  function onBtnClick() {
+    setReducer('app', state => {
+      state.count++
+      state.list.push('This is an example text')
+    })
+  }
+  
+  return <button onClick={onBtnClick}>SetReducer</button>
 }
 ```
 
@@ -207,38 +205,39 @@ Core *dispatch* API, the advanced version of *setReducer*
 - parameter **`mutation`** *object* | *function* | *array*: *required*, usually written as a creator function that returns a *mutation object* obtains all update infomation, and run with necessary params in *commitMutation*; it also can be presented as a function returns *Promise* when handling async code
   - **type** *string* : *optional*, a flag used for process tracing
   - **target** *string* | *array* : *required*, specify reducer(s)'s *name* field
-  - **operation** *function* | *array* : *required*, privide target *reducer_state* to mutate directly in function body
+  - **operation** *function* | *array* : *required*, provide target *reducer_state* to mutate directly in function body
 - parameter **`returnPromise`** *boolean* : *optional*, `false` by default, set `true` to return Promise when dispatching
 
-**Example**
 ```js
 import React from 'react'
 import { commitMutation } from '@/store/index.js' // store dir relative path
 
 export default function Example() {
-  const mutationCreator = listItem => {
-    // return a mutation object
-    return {
-      type: 'EXAMPLE_A',
-      target: 'app',
-      operation: state => {
-        // state here is store_state in single-reducer mode and reducer_state in multi-reducer mode
-        state.list.push(listItem)
+  function onBtnClick() {
+    const mutationCreator = listItem => {
+      // return a mutation object
+      return {
+        type: 'EXAMPLE_A',
+        target: 'app',
+        operation: state => {
+          // state here is store_state in single-reducer mode and reducer_state in multi-reducer mode
+          state.list.push(listItem)
+        }
       }
     }
+
+    // basic usage
+    commitMutation(mutationCreator('This is an example text'))
   }
-
-  // basic usage
-  commitMutation(mutationCreator('This is an example text'))
-
-  return <div></div>
+  
+  return <button onClick={onBtnClick}>CommitMutation</button>
 }
 ```
 
 ## API Advanced Usage
 
 ### Mutating multiple reducers at the same time
-When *store_state* is divided into several *reducer_state* and a mutation wants to update some of them at the same time, we provide a format to fit it. This can only be used in *commitMutation's* mutationCreator.
+When *store_state* is split into several *reducer_states* and a mutation wants to update a few of them at the same time, there is a format to fit it. This can only be used in *commitMutation's* mutation.
 
 ```js
 // mutations.js
@@ -248,11 +247,11 @@ export const mutationCreator = listItem => ({
   target: ['app', 'counter'],
   operation: [
     state => {
-      // reducer_state of reducer named app
+      // reducer_state of reducer named app, matches the index in target array
       state.list.push(listItem)
     },
     state => {
-      // reducer_state of reducer named counter
+      // reducer_state of reducer named counter, matches the index in target array
       state.count++
     }
   ]

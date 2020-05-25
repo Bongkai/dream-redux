@@ -90,16 +90,15 @@ ReactDOM.render(
 
 #### `StoreCreator`
 创建核心对象 store 和一系列 api 的类对象
-- 用法 `StoreCreator(config)`
+- 用法 `new StoreCreator(config)`
 - 参数 **`config`** *object*
   - **reducerConfig** *object* | *array* : 必填项，reducers 的配置，格式分为单 reducer 和多 reducers 两种模式，以下为每个 reducer 的配置项：
-    - **name** *string* : 必填项，对应 reducer 的 name，在多 reducers 时作为 store_state 的字段名，以及 mutation 中指定 reducer 用的 target
+    - **name** *string* : 必填项，对应 reducer 的 name，在多 reducers 时作为 store_state 的属性名，以及 mutation 中指定 reducer 用的 target
     - **initialState** *object* : 必填项，对应 reducer 的 state 结构和初始值
     - **persist** *object* : 可选项，配置方法同 redux-persist 的 *persistConfig*
   - **allowOperationReturns** *boolean* : 可选项，设为 `true` 允许通过在 operation 中返回自己构造的新 state 来更新状态；默认是只能直接修改 state，返回值会被忽略
 - 返回项： `{ store, useSelector, setReducer, commitMutation, persistor }`
 
-**例子**
 ```js
 import { StoreCreator } from 'dream-redux'
 
@@ -142,7 +141,6 @@ export const { store, persistor, useSelector, setReducer, commitMutation } = new
 在 hook 组件中获取目标 state 的方法，等同于 react-redux 的 useSelector
 - 用法 `useSelector(selectorFunc)`
 
-**例子**
 ```js
 import React from 'react'
 import { useSelector } from '@/store/index.js' // store 文件夹的相对目录
@@ -161,7 +159,6 @@ export default function Example() {
 在 class 组件中获取目标 state 的 HOC 方法，等同于 react-redux 的 connect，只需传入 mapStateToProps 参数即可，派发 mutation 的方式用 commitMutation 代替
 - 用法 `connect(mapStateToProps)`
 
-**Example**
 ```js
 import React from 'react'
 import { connect } from 'dream-redux'
@@ -195,55 +192,57 @@ export default connect(Example)
 - 参数 **`operation`** *function* : 必填项，可在方法体中直接修改指定 target 的 reducer_state
 - 参数 **`returnPromise`** *boolean* : 可选项，值为 `true` 时 setReducer 执行后会返回一个 Promise 对象
 
-**例子**
 ```js
 import React from 'react'
 import { setReducer } from '@/store/index.js' // store 文件夹的相对目录
 
 export default function Example() {
-  // 最基本的用法，直接在 state 上修改，无需通过常规的 dispatch -> action -> reducer 即可更新 reducer_state
-  setReducer('app', state => {
-    // 这里的 state 在单 reducer 时是 store_state，多 reducers 时是 name 为 app 的 reducer_state
-    state.count++
-    state.list.push('这是一条测试文字')
-  })
-
-  return <div></div>
+  function onBtnClick() {
+    // 最基本的用法，直接在 state 上修改，无需通过常规的 dispatch(action) -> reducer 即可更新 reducer_state
+    setReducer('app', state => {
+      // 这里的 state 在单 reducer 时是 store_state，多 reducers 时是 name 为 app 的 reducer_state
+      state.count++
+      state.list.push('这是一条测试文字')
+    })
+  }
+  
+  return <button onClick={onBtnClick}>SetReducer</button>
 }
 ```
 
 ### `commitMutation`
 核心 *dispatch* API，具有更新 reducer_state 的全部功能，高级版的 setReducer（正式项目中使用）
 - 用法 `commitMutation(mutation, [returnPromise])`
-- 参数 **`mutation`** *object* | *function* | *array* : 必填项，常见写法为构造一个返回 mutation 对象的函数，然后在 commitMutation 中传入参数执行；mutation 的字段如下：
+- 参数 **`mutation`** *object* | *function* | *array* : 必填项，常见写法为构造一个返回 mutation 对象的函数，然后在 commitMutation 中传入参数执行；mutation 的属性如下：
   - **type** *string* : 可选项，此次 dispatch 行为的类型标记，为求更新过程可追踪，一般都会填
   - **target** *string* | *array* : 必填项，目标 reducer 的 name
   - **operation** *function* | *array* : 必填项，可在方法体中直接修改指定 target 的 reducer_state
 - 参数 **`returnPromise`** *boolean* : 可选项，值为 `true` 时 commitMutation 执行后会返回一个 Promise 对象
-- *setReducer* 和 *commitMutation* 虽然更新 reducer_state 的方式和常规 redux 不同，但仍旧遵循 redux 的设计原则，即每次命令 reducer 更新后返回一个全新的 reducer_state 对象，再让其触发 react 的刷新
+- *setReducer* 和 *commitMutation* 虽然更新 reducer_state 的方式和常规 redux 不同，但仍旧遵循 redux 的工作原理，即每次命令 reducer 更新后返回一个全新的 reducer_state 对象，再让其触发 react 的刷新
 
-**例子**
 ```js
 import React from 'react'
 import { commitMutation } from '@/store/index.js' // store 文件夹的相对目录
 
 export default function Example() {
-  const mutationCreator = listItem => {
-    // 返回 mutation 对象
-    return {
-      type: 'EXAMPLE_A',
-      target: 'app',
-      operation: state => {
-        // 这里的 state 在单 reducer 时是 store_state，多 reducers 时是 name 为 app 的 reducer_state
-        state.list.push(listItem)
+  function onBtnClick() {
+    const mutationCreator = listItem => {
+      // 返回 mutation 对象
+      return {
+        type: 'EXAMPLE_A',
+        target: 'app',
+        operation: state => {
+          // 这里的 state 在单 reducer 时是 store_state，多 reducers 时是 name 为 app 的 reducer_state
+          state.list.push(listItem)
+        }
       }
     }
+
+    // 基本用法
+    commitMutation(mutationCreator('这是一条测试文字'))
   }
-
-  // 基本用法
-  commitMutation(mutationCreator('这是一条测试文字'))
-
-  return <div></div>
+  
+  return <button onClick={onBtnClick}>CommitMutation</button>
 }
 ```
 
@@ -362,7 +361,7 @@ export default function Example() {
 ```
 
 ### 状态持久化存储
-正常情况下，当页面刷新或重新加载时，store 会重新生成，之前更新过的状态会被重置。如果有些状态需要存储起来，就需要在 StoreCreator 的 config 中配置 persist 字段，配置项同 redux-persist 的 persistConfig。
+正常情况下，当页面刷新或重新加载时，store 会重新生成，之前更新过的状态会被重置。如果有些状态需要存储起来，就需要在 StoreCreator 的 config 中配置 persist 属性，配置项同 redux-persist 的 persistConfig。
 
 ```js
 // src/store/index.js
@@ -376,8 +375,8 @@ const config = {
         list: []
       },
       persist: {
-        whitelist: ['list']  // 白名单，只有 list 字段会被缓存
-        // blacklist: ['list']  // 黑名单，只有 list 字段不会被缓存
+        whitelist: ['list']  // 白名单，只有 list 状态会被缓存
+        // blacklist: ['list']  // 黑名单，只有 list 状态不会被缓存
       }
     },
     {
@@ -385,7 +384,7 @@ const config = {
       initialState: {
         count: 0
       },
-      persist: {}  // 不设 whitelist 或 blacklist，该 reducer 的所有字段都会被持久化存储
+      persist: {}  // 不设 whitelist 或 blacklist，该 reducer 的所有状态都会被持久化存储
     },
   ]
 }
