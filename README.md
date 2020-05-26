@@ -1,7 +1,7 @@
 English | [简体中文](./README.zh-CN.md)
 
 # dream-redux
-A fast-zero-build redux framework for react apps.
+A zero-build & easily-update redux integration repo for react apps.
 
 ## Introduction
 **dream-redux** is an integration framework for developers to use redux fast and easily.
@@ -81,13 +81,14 @@ The regular redux coding is complex and confused to the beginners so it keeps th
 
 ### `StoreCreator`
 A class to create *store* and a series of APIs
-- usage `new StoreCreator(config)`
+- usage `new StoreCreator(config, [middlewares])`
 - parameter **`config`** *object* 
   - **reducerConfig** *object* | *array* : *required*, reducers config, divided into *single-reducer* mode and *multi-reducers* mode
     - **name** *string* : *required*, reducer name, used as *store_state* field and *mutation* target
     - **initialState** *object* : *required*, *reducer_state* structure and initialValue
     - **persist** *object* : *optional*, is the same as *persistConfig* in *redux-persist*
   - **allowOperationReturns** *boolean* : *optional*, set `true` to allow returning value in *operation* function body; by default it can only mutate state directly and returns will be ignored
+- parameter **`middlewares`** *array* : *optional*, put in with the extra middlewares array
 - returns: `{ store, useSelector, setReducer, commitMutation, persistor }`
 
 ```js
@@ -243,7 +244,7 @@ When *store_state* is split into several *reducer_states* and a mutation wants t
 // mutations.js
 
 export const mutationCreator = listItem => ({
-  type: 'EXAMPLE_PROMISE',
+  type: 'EXAMPLE_MUTATE_MULTIPLE_STATES',
   target: ['app', 'counter'],
   operation: [
     state => {

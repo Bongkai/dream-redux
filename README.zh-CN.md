@@ -1,7 +1,7 @@
 [English](./README.md) | 简体中文
 
 # dream-redux
-一个无需复杂搭建，开箱即用的 redux 开发框架。
+一个开箱即用，简易更新的 redux 集成库。
 
 ## 简介
 **dream-redux** 是一个专门为想快速使用 redux 的开发者打造的框架，只需要写两处代码便可在 react 项目上完成 redux 和相关的多个库的搭建，并且提供了多种简化功能，使项目代码更加高效简洁。你只需要有 react 的基础知识，便能借助 **dream-redux** 轻松开发具备状态管理功能的项目了。
@@ -89,14 +89,15 @@ ReactDOM.render(
 ## API 基本用法
 
 #### `StoreCreator`
-创建核心对象 store 和一系列 api 的类对象
-- 用法 `new StoreCreator(config)`
+创建核心对象 store 和一系列 api 的类
+- 用法 `new StoreCreator(config, [middlewares])`
 - 参数 **`config`** *object*
   - **reducerConfig** *object* | *array* : 必填项，reducers 的配置，格式分为单 reducer 和多 reducers 两种模式，以下为每个 reducer 的配置项：
     - **name** *string* : 必填项，对应 reducer 的 name，在多 reducers 时作为 store_state 的属性名，以及 mutation 中指定 reducer 用的 target
     - **initialState** *object* : 必填项，对应 reducer 的 state 结构和初始值
     - **persist** *object* : 可选项，配置方法同 redux-persist 的 *persistConfig*
   - **allowOperationReturns** *boolean* : 可选项，设为 `true` 允许通过在 operation 中返回自己构造的新 state 来更新状态；默认是只能直接修改 state，返回值会被忽略
+- 参数 **`middlewares`** *array* : 可选项，需要添加中间件时以数组形式传入
 - 返回项： `{ store, useSelector, setReducer, commitMutation, persistor }`
 
 ```js
@@ -258,7 +259,7 @@ export default function Example() {
 
 // 同时更新 app_reducer 的 list 和 counter_reducer 的 count
 export const mutationCreator = listItem => ({
-  type: 'EXAMPLE_PROMISE',
+  type: 'EXAMPLE_MUTATE_MULTIPLE_STATES',
   target: ['app', 'counter'],
   // operation 数组各子项的 reducer_state 与 target 数组一一对应
   operation: [

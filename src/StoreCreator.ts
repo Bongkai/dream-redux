@@ -1,5 +1,5 @@
 import { createStore, applyMiddleware, Store } from 'redux'
-import { useSelector, batch } from 'react-redux'
+import { useSelector } from 'react-redux'
 import { persistStore, Persistor } from 'redux-persist'
 import { composeWithDevTools } from 'redux-devtools-extension'
 import { combineReducers } from './combineReducers'
@@ -61,15 +61,10 @@ export class StoreCreator {
   async _execDispatch(mutation: any, returnPromise: boolean) {
     let ret: any
     if (Array.isArray(mutation)) {
-      let retArr: any[]
-      ret = await new Promise(resolve => {
-        batch(() => {
-          retArr = mutation.map(item => {
-            return this.store.dispatch(item)
-          })
-          resolve(Promise.all(retArr))
-        })
+      const retArr: any[] = mutation.map(item => {
+        return this.store.dispatch(item)
       })
+      ret = Promise.all(retArr)
     } else {
       ret = this.store.dispatch(mutation)
     }
