@@ -308,36 +308,39 @@ export const mutationCreator = () => {
 ```
 
 ### Access latest store_state after dispatch
-In regular redux, you cannot get latest *store_state* immediately after *dispatch*, but now it come true if you set the last parameter to `true` in *setReducer* and *commitMutation* and it will return a Promise with latest *store_state*.
+The following examples are the ways to get latest *store_state* in different situations:
 
-*Notice: This is not a stable function yet, please feedback via Issue if it doesn't work.*
+1. dispatch single or multiple sync mutations
+
+2. dispatch single async mutation
+
+3. dispatch multiple async mutations and wait for all the mutations have done
 
 ```js
-import React from 'react'
-import { setReducer } from '@/store/index.js' // store dir relative path
-
 export default function Example() {
-  setReducer('app', state => {
-    state.count++
-  }, true).then(state => {
-    // state is the latest store_state
-    console.log(state.count)  // 1
-  })
+  // sync mutations
+  function runSyncMutations() {
+    commitMutation(sync_mutationCreator_1())
+    commitMutation(sync_mutationCreator_2())
+    console.log(store.getState())  // latest store_state
+  }
 
-  const mutationCreator = listItem => ({
-    type: 'EXAMPLE_A',
-    target: 'app',
-    operation: state => {
-      state.list.push(listItem)
-    }
-  })
+  // single async mutation
+  function runAsyncMutation() {
+    commitMutation(async_mutationCreator(), true).then(state => {
+      console.log(state)  // latest store_state
+    })
+  }
 
-  commitMutation(mutationCreator('This is an example text'), true).then(state => {
-    // state is the latest store_state
-    console.log(state.list)  // ['This is an example text']
-  })
-
-  return <div></div>
+  // mutiple async mutations
+  function runAsyncMutations() {
+    commitMutation([async_mutationCreator_1(), async_mutationCreator_2()], true)
+      .then(state => {
+        console.log(state)  // latest store_state
+      })
+  }
+  
+  // return ...
 }
 ```
 
