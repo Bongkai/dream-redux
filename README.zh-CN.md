@@ -326,38 +326,39 @@ export const mutationCreator = () => {
 ```
 
 ### dispatch 后获取最新的 store_state
-setReducer 和 commitMutation 的本质都是 store.dispatch 方法。所以如同常规 redux，进行 dispatch 操作后是无法立即获取更新完的 store_state 的。但实际开发中，有一些场景需要在 dispatch 后获取最新数据进行下一步操作，这很令人头疼。
+下面介绍不同情况下获取 dispatch 后的最新 store_state 的方法：
 
-而 setReducer 和 commitMutation 可以通过把最后一个参数设为 true 来返回带有最新 store_state 的 **Promise** 对象，让业务逻辑更加顺畅。
+1. 单次或多次 dispatch 同步 mutation，直接通过 store.getState() 获取
 
-*注意：该功能尚未稳定，不保证在各种情景下均可正常使用，有异常情况请通过 issue 反馈。*
+2. 单次 dispatch 异步 mutation，通过 Promise.then 获取
+
+3. 想要 dispatch 多个异步 mutation ，等到所有 mutation 都完成更新后再获取最新 store_state，可以将多个 mutation 以数组形式传给 commitMutation，再通过 Promise.then 获取
 
 ```js
-import React from 'react'
-import { setReducer } from '@/store/index.js' // store 文件夹的相对目录
-
 export default function Example() {
-  setReducer('app', state => {
-    state.count++
-  }, true).then(state => {
-    // state 是最新的 store_state
-    console.log(state.count)  // 1
-  })
+  // 同步 mutations
+  function runSyncMutations() {
+    commitMutation(sync_mutationCreator_1())
+    commitMutation(sync_mutationCreator_2())
+    console.log(store.getState())  // 直接获取最新 store_state
+  }
 
-  const mutationCreator = listItem => ({
-    type: 'EXAMPLE_A',
-    target: 'app',
-    operation: state => {
-      state.list.push(listItem)
-    }
-  })
+  // 单个异步 mutation
+  function runAsyncMutation() {
+    commitMutation(async_mutationCreator(), true).then(state => {
+      console.log(state)  // 通过 then 获取最新 store_state
+    })
+  }
 
-  commitMutation(mutationCreator('这是一条测试文字'), true).then(state => {
-    // state 是最新的 store_state
-    console.log(state.list)  // ['这是一条测试文字']
-  })
-
-  return <div></div>
+  // 多个异步 mutations
+  function runAsyncMutations() {
+    commitMutation([async_mutationCreator_1(), async_mutationCreator_2()], true)
+      .then(state => {
+        console.log(state)  // 通过 then 获取最新 store_state
+      })
+  }
+  
+  // return ...
 }
 ```
 
