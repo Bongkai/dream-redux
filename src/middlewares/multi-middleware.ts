@@ -1,6 +1,7 @@
+import { Store } from 'redux'
 import { Mutation } from '../types'
 
-export const multiMiddleware = ({ dispatch }) => (next: Function) => (
+export const multiMiddleware = ({ dispatch }: Store) => (next: Function) => (
   mutation: Mutation,
 ) => {
   const { type, target, operation } = mutation
@@ -11,6 +12,7 @@ export const multiMiddleware = ({ dispatch }) => (next: Function) => (
 
     for (let i = 0; i < operation.length; i++) {
       dispatch({
+        ...mutation,
         type: type,
         target: target[i],
         operation: operation[i],
