@@ -3,34 +3,30 @@ import { ICounterState, ITodoState, IStoreState } from './state'
 const counter = 'counter'
 const todo = 'todo'
 
-export const changeCounter = (isAdd: boolean) => {
-  return {
-    type: 'CHANGE_COUNTER',
-    target: counter,
-    operation: (state: ICounterState) => {
-      if (isAdd) {
-        state.count++
-      } else if (state.count > 0) {
-        state.count--
-      }
-    },
-  }
-}
+export const changeCounter = (isAdd: boolean) => ({
+  type: 'CHANGE_COUNTER',
+  target: counter,
+  operation: (state: ICounterState) => {
+    if (isAdd) {
+      state.count++
+    } else if (state.count > 0) {
+      state.count--
+    }
+  },
+})
 
-export const createTodoItem = (value: string) => {
-  return {
-    type: 'CREATE_TODO_ITEM',
-    target: [counter, todo],
-    operation: [
-      (state: ICounterState) => {
-        state.count++
-      },
-      (state: ITodoState) => {
-        state.list.push(value)
-      },
-    ],
-  }
-}
+export const createTodoItem = (value: string) => ({
+  type: 'CREATE_TODO_ITEM',
+  target: [counter, todo],
+  operation: [
+    (state: ICounterState) => {
+      state.count++
+    },
+    (state: ITodoState) => {
+      state.list.push(value)
+    },
+  ],
+})
 
 export const createTodoItemAsync = (value: string) => {
   const mutation = {
@@ -65,10 +61,14 @@ const _fakeHttpRequest = (): Promise<{ data: string }> => {
   })
 }
 
+// const _fakeHttpRequest_fail = (): Promise<any> => {
+//   return Promise.reject()
+// }
+
 export const createTodoItemByFetch = () => {
-  return (dispatch, getData: () => IStoreState) => {
+  return (dispatch, getState: () => IStoreState) => {
     _fakeHttpRequest().then(res => {
-      const { count } = getData().counter
+      const { count } = getState().counter
       const mutation = {
         type: 'CREATE_TODO_ITEM_BY_FETCH',
         target: [counter, todo],
@@ -86,12 +86,38 @@ export const createTodoItemByFetch = () => {
   }
 }
 
-export const deleteTodoItem = (index: number) => {
-  return {
-    type: 'CREATE_TODO_ITEM',
-    target: todo,
+export const deleteTodoItem = (index: number) => ({
+  type: 'CREATE_TODO_ITEM',
+  target: todo,
+  operation: (state: ITodoState) => {
+    state.list.splice(index, 1)
+  },
+})
+
+export const fetchHttpRequest = () => ({
+  type: 'FETCH_HTTP_REQUEST',
+  target: todo,
+  promise: _fakeHttpRequest(),
+  pending: {
     operation: (state: ITodoState) => {
-      state.list.splice(index, 1)
+      console.log('Requesting...')
     },
-  }
-}
+  },
+  success: {
+    target: [counter, todo], // 各个阶段中可以设定 target 覆盖默认值
+    operation: [
+      (state: ICounterState, res: any) => {
+        state.count++
+      },
+      (state: ITodoState, res: any) => {
+        state.list.push(res.data)
+      },
+    ],
+  },
+  fail: {
+    target: todo,
+    operation: (state: ITodoState, err: any) => {
+      console.log(err)
+    },
+  },
+})

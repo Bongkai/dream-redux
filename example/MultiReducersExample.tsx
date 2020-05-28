@@ -8,8 +8,9 @@ import {
   changeCounter,
   createTodoItem,
   createTodoItemAsync,
-  createTodoItemByFetch,
+  // createTodoItemByFetch,
   deleteTodoItem,
+  fetchHttpRequest,
 } from './store/multi/mutations'
 
 export default function MultiReducerExample() {
@@ -19,6 +20,9 @@ export default function MultiReducerExample() {
 
   function onCounterChange(isAdd: boolean) {
     commitMutation(changeCounter(isAdd))
+    console.log('dispatch_middle')
+    commitMutation(changeCounter(isAdd))
+    console.log('dispatch_after')
   }
 
   function createTodo() {
@@ -35,13 +39,14 @@ export default function MultiReducerExample() {
         [changeCounter(true), createTodoItemAsync(inputValue)],
         true,
       )
-      console.log(state)
+      console.log('createTodoAsync_state', state)
       setInputValue('')
     }
   }
 
   function createTodoByFetch() {
-    commitMutation(createTodoItemByFetch())
+    // commitMutation(createTodoItemByFetch())
+    commitMutation(fetchHttpRequest())
   }
 
   function onItemDelete(index: number) {

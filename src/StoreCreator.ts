@@ -6,7 +6,12 @@ import { combineReducers } from './combineReducers'
 import { defaultConfig } from './defaultConfig'
 import { isPromise } from './tools'
 import logger from 'redux-logger'
-import { thunkMiddleware, multiMiddleware, typeMiddleware } from './middlewares'
+import {
+  thunkMiddleware,
+  promiseMiddleware,
+  multiMiddleware,
+  typeMiddleware,
+} from './middlewares'
 import { StoreConfig, Operation, Mutation } from './types'
 
 export class StoreCreator {
@@ -19,6 +24,7 @@ export class StoreCreator {
 
     const middlewares: any[] = [
       thunkMiddleware,
+      promiseMiddleware,
       multiMiddleware,
       ...userMiddlewares,
       typeMiddleware,

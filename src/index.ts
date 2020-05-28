@@ -4,4 +4,4 @@ export { PersistGate } from 'redux-persist/integration/react'
 
 export { StoreCreator } from './StoreCreator'
 
-export { StoreConfig, Mutation, PlainObjectState } from './types'
+export { StoreConfig, Mutation, PlainObject } from './types'

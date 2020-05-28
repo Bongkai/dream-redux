@@ -5,7 +5,7 @@ A zero-build & easily-update redux integration repo for react apps.
 
 ## Introduction
 **dream-redux** is an integration framework for developers to use redux fast and easily.
- It provides the conveniences to set up redux series and many APIs for coding efficiently.
+ It provides the conveniences to set up redux families and many APIs for coding efficiently.
 
 ## Installation
 ```ssh
@@ -25,6 +25,7 @@ npm install --save dream-redux
 * [API Advanced Usage](#API-Advanced-Usage)
   * [Mutating multiple reducers at the same time](#Mutating-multiple-reducers-at-the-same-time)
   * [Asynchronous mutation](#Asynchronous-mutation)
+  * [Dispatch mutations in different Promise statuses](#Dispatch-mutations-in-different-Promise-statuses)
   * [Access latest store_state after dispatch](#Access-latest-store_state-after-dispatch)
   * [Persistence storage](#Persistence-storage)
 
@@ -88,6 +89,7 @@ A class to create *store* and a series of APIs
     - **initialState** *object* : *required*, *reducer_state* structure and initialValue
     - **persist** *object* : *optional*, is the same as *persistConfig* in *redux-persist*
   - **allowOperationReturns** *boolean* : *optional*, set `true` to allow returning value in *operation* function body; by default it can only mutate state directly and returns will be ignored
+  - **logger** *boolean* : *optional*, set `true` to enable *redux-logger*
 - parameter **`middlewares`** *array* : *optional*, put in with the extra middlewares array
 - returns: `{ store, useSelector, setReducer, commitMutation, persistor }`
 
@@ -307,6 +309,48 @@ export const mutationCreator = () => {
 }
 ```
 
+### Dispatch mutations in different Promise statuses
+Sometimes we would like to dispatch different mutations in different Promise statuses like pending, fulfilled and rejected. The redux-thunk works but seems a little complicated. We provide a special format for *mutation* to enable it as what *redux-promise* does.
+
+```js
+// mutations.js
+
+export const mutationCreator = () => ({
+  type: 'FETCH_HTTP_REQUEST',
+  target: 'app',  // take effect by default, can be covered by item target
+  // use 'promise' instead of 'operation'
+  promise: SomeHttpRequest(),  // Promise object
+  // status pending
+  pending: {
+    operation: state => {
+      // ...
+    },
+  },
+  // status fulfilled
+  success: {
+    target: ['app', 'counter'],  // specify item target to cover dafault
+    operation: [
+      (state, res) => {
+        console.log(res)  // res is the value in Promise.resolve
+        // ...
+      },
+      (state, res) => {
+        console.log(res)
+        // ...
+      },
+    ],
+  },
+  // status rejected
+  fail: {
+    target: ['counter'],
+    operation: (state, err) => {
+      console.log(err)  // err is the value in Promise.reject
+      // ...
+    },
+  },
+})
+```
+
 ### Access latest store_state after dispatch
 The following examples are the ways to get latest *store_state* in different situations:
 
@@ -354,10 +398,7 @@ const config = {
   reducerConfig: [
     {
       name: 'app',
-      initialState: {
-        count: 0,
-        list: []
-      },
+      initialState: { count: 0, list: [] },
       persist: {
         whitelist: ['list']  // fields in whitelist will be cached
         // blacklist: ['list']  // and fields in whitelist will not be cached
@@ -365,9 +406,7 @@ const config = {
     },
     {
       name: 'counter',
-      initialState: {
-        count: 0
-      },
+      initialState: { count: 0 },
       persist: {}  // all the fields of this reducer_state will be cached
     },
   ]
