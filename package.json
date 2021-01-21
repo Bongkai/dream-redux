@@ -26,7 +26,7 @@
   "dependencies": {
     "@types/react-redux": "^7.1.8",
     "@types/redux-logger": "^3.0.7",
-    "immer": "^6.0.8",
+    "immer": "^8.0.1",
     "react-redux": "^7.2.0",
     "redux": "^4.0.5",
     "redux-devtools-extension": "^2.13.8",
